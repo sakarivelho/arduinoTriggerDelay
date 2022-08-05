@@ -31,7 +31,6 @@ void setup() {
   PORTB = B00000000;
   delay(10);
   attachInterrupt(digitalPinToInterrupt(INPUTPIN), ISR_risingEdge, RISING);
-  Serial.println(t1_comp);
   //Reset timer1 control register A
   TCCR1A = 0;
   //Prescaler value to 256
