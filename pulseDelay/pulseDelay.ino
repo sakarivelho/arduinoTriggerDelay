@@ -1,17 +1,26 @@
 /**************************************
       SET DELAY HERE
-*/
+***************************************/
+/**************************************/
+/**************************************/
+/**************************************/
+
 
 #define PULSEDELAY 50 //Value in milliseconds, min 1 max 1000
 
 
 /**************************************/
+/**************************************/
+/**************************************/
+/**************************************/
+/**************************************/
+
+
+
 
 const uint8_t inputPin = 2;
-
 //Trigger input: D2
 //Trigger output: D8
-
 
 //Ticks to one millisecond, clock speed 16mhz, prescaler 256
 #define MILLISECOND 62.5
@@ -31,27 +40,21 @@ void setup() {
   EICRA |= (1 << ISC01);
   EICRA |= (1 << ISC00);
   // attachInterrupt(digitalPinToInterrupt(INPUTPIN), ISR_risingEdge, RISING);
-
   //Enable interrupts for INT0 (for inputPin)
   EIMSK |= (1 << INT0);
-  
   //Reset timer1 control register A
   TCCR1A = 0;
   //Prescaler value to 256
   TCCR1B |= (1 << CS12);
   TCCR1B &= ~(1 << CS11);
   TCCR1B &= ~(1 << CS10);
-
   //Reset Timer1 and set to compare val
   TCNT1 = t1_load;
   OCR1A = t1_comp;
-
     //Set D8 pin to output
   DDRB = B00000001;
   //Set D8 pin low
   PORTB = B00000000;
-
-
   //Enable global interrupts
   sei();
 }
