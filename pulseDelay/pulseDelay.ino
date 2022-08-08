@@ -16,7 +16,9 @@
 /**************************************/
 
 
-
+#if PULSEDELAY < 1 || PULSEDELAY > 1000
+# error PULSEDELAY value must be between 1 and 1000!
+#endif
 
 const uint8_t inputPin = 2;
 //Trigger input: D2
