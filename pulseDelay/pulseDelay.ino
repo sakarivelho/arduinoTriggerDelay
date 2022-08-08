@@ -7,7 +7,7 @@
 
 /**************************************/
 
-#define INPUTPIN 2
+const uint8_t inputPin = 2;
 
 //Trigger input: D2
 //Trigger output: D8
@@ -21,16 +21,20 @@ const uint16_t t1_load = 0;
 const uint16_t t1_comp = MILLISECOND * PULSEDELAY;
 
 void setup() {
-  //Disable interrupts
+  //Disable global interrupts
   cli();
+  //Set inputPin to input with pullup 
+  DDRD &= ~(1 << inputPin);
+  PORTD |= (1 << inputPin);
+  // pinMode(INPUTPIN, INPUT_PULLUP); 
+  //Rising edge interrupt for inputPin;
+  EICRA |= (1 << ISC01);
+  EICRA |= (1 << ISC00);
+  // attachInterrupt(digitalPinToInterrupt(INPUTPIN), ISR_risingEdge, RISING);
 
-  pinMode(INPUTPIN, INPUT_PULLUP);
-  //Set D8 pin to output
-  DDRB = B00000001;
-  //Set D8 pin low
-  PORTB = B00000000;
-  delay(10);
-  attachInterrupt(digitalPinToInterrupt(INPUTPIN), ISR_risingEdge, RISING);
+  //Enable interrupts for INT0 (for inputPin)
+  EIMSK |= (1 << INT0);
+  
   //Reset timer1 control register A
   TCCR1A = 0;
   //Prescaler value to 256
@@ -41,7 +45,14 @@ void setup() {
   //Reset Timer1 and set to compare val
   TCNT1 = t1_load;
   OCR1A = t1_comp;
-  //Enable interrupts
+
+    //Set D8 pin to output
+  DDRB = B00000001;
+  //Set D8 pin low
+  PORTB = B00000000;
+
+
+  //Enable global interrupts
   sei();
 }
 
@@ -49,17 +60,17 @@ void loop() {
   if (trigged) {
     trigged = false;
     //Disable digital pin interrupt
-    detachInterrupt(digitalPinToInterrupt(INPUTPIN));
+    EIMSK &= ~(1 << INT0);
     delay(500);
     //Enable digital pin interrupt
-    attachInterrupt(digitalPinToInterrupt(INPUTPIN), ISR_risingEdge, RISING);
+    EIMSK |= (1 << INT0);
     //Set D8 pin low
     PORTB = B00000000;
   }
 }
 
 //External interrupt
-void ISR_risingEdge() {
+ISR(INT0_vect){
   //Set timer count to 0
   TCNT1 = t1_load;
   //clear output compare a match flag so interrupt won't fire before we reach t1_load count
